@@ -8,20 +8,16 @@ using UnityEngine.XR.Interaction.Toolkit.Interactors;
 public class PhotoBrowser : MonoBehaviour
 {
     [Header("UI References")]
-    [SerializeField] private RawImage displayImage; // RawImage component to display selected photo
-    [SerializeField] private GameObject selectionPanel; // Panel to display photo selection UI
-    [SerializeField] private TMP_Dropdown photoDropdown; // Dropdown for selecting photos
-    [SerializeField] private Button selectButton; // Reference to the Select button
-    [SerializeField] private Button chooseButton; // Reference to the Choose button
-    [SerializeField] private Button backButton; // Reference to the Back button
-    [SerializeField] private GameObject chooseXrayPanel; // Reference to the ChooseXray Panel
-    [SerializeField] private GameObject chooseCTScanPanel; // Reference to the ChooseCTScan Panel
+    [SerializeField] private RawImage displayImage;           // RawImage component to display selected photo
+    [SerializeField] private GameObject selectionPanel;    // Add this back
+    [SerializeField] private TMP_Dropdown photoDropdown;      // Dropdown for selecting photos
+    [SerializeField] private Button selectButton;             // Reference to the Select button
+    [SerializeField] private Button chooseButton;             // Reference to the Choose button
+    [SerializeField] private Button backButton;               // Reference to the Back button
+    [SerializeField] private GameObject chooseXrayPanel;   // Add this back
 
     [Header("Photo Settings")]
     [SerializeField] private string photoFolderPath = "Photos/XRay"; // Folder name inside Resources folder (CTScan / XRay)
-
-    [Header("UI Manager")]
-    [SerializeField] private UIManager uiManager; // Reference to the UIManager script
 
     private Texture2D[] photoTextures;
 
@@ -32,12 +28,6 @@ public class PhotoBrowser : MonoBehaviour
         PopulateDropdown();
         SetupXRSelectListener();
         AssignButtonListeners();
-
-        // Ensure Selection Panel is inactive at start
-        if (selectionPanel != null)
-        {
-            selectionPanel.SetActive(false);
-        }
     }
 
     private void LoadPhotosFromResources()
@@ -123,44 +113,33 @@ public class PhotoBrowser : MonoBehaviour
         }
     }
 
-    // Method to open the selection panel
+    // Method to open the selection panel via UIManager
     public void OpenSelectionPanel()
     {
         Debug.Log("Opening selection panel.");
-        if (uiManager != null && selectionPanel != null)
+        if (chooseXrayPanel != null && selectionPanel != null)
         {
-            uiManager.ShowSelectionPanel();
-            Debug.Log("Selection Panel is now active.");
+            chooseXrayPanel.SetActive(false);
+            selectionPanel.SetActive(true);
         }
         else
         {
-            Debug.LogError("UIManager or Selection Panel is not assigned.");
+            Debug.LogError("ChooseXray Panel or Selection Panel is not assigned.");
         }
     }
 
-    // Method to close the selection panel
+    // Method to close the selection panel via UIManager
     public void CloseSelectionPanel()
     {
         Debug.Log("Closing selection panel.");
-        if (uiManager != null && chooseXrayPanel != null && chooseCTScanPanel != null)
+        if (chooseXrayPanel != null && selectionPanel != null)
         {
-            // Determine which panel to return to based on photoFolderPath
-            if (photoFolderPath.Contains("XRay"))
-            {
-                uiManager.HideSelectionPanel("XRay");
-            }
-            else if (photoFolderPath.Contains("CTScan"))
-            {
-                uiManager.HideSelectionPanel("CTScan");
-            }
-            else
-            {
-                Debug.LogWarning("Unknown photoFolderPath. Cannot determine which panel to return to.");
-            }
+            selectionPanel.SetActive(false);
+            chooseXrayPanel.SetActive(true);
         }
         else
         {
-            Debug.LogError("UIManager or Choose Panels are not assigned.");
+            Debug.LogError("ChooseXray Panel or Selection Panel is not assigned.");
         }
     }
 
