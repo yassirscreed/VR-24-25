@@ -9,12 +9,16 @@ public class PhotoBrowser : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private RawImage displayImage;           // RawImage component to display selected photo
-    [SerializeField] private GameObject selectionPanel;    // Add this back
+    [SerializeField] private GameObject selectionPanel;    
     [SerializeField] private TMP_Dropdown photoDropdown;      // Dropdown for selecting photos
     [SerializeField] private Button selectButton;             // Reference to the Select button
     [SerializeField] private Button chooseButton;             // Reference to the Choose button
     [SerializeField] private Button backButton;               // Reference to the Back button
-    [SerializeField] private GameObject chooseXrayPanel;   // Add this back
+    [SerializeField] private GameObject chooseXrayPanel;   
+    [SerializeField] private GameObject imageViewerPanel;     // Reference to the image viewer panel directly
+    [SerializeField] private RawImage imageViewerDisplayImage;
+    [SerializeField] private Button chooseFromXrayButton;     
+    [SerializeField] private Button backFromImageViewerButton; // Back button in image viewer
 
     [Header("Photo Settings")]
     [SerializeField] private string photoFolderPath = "Photos/XRay"; // Folder name inside Resources folder (CTScan / XRay)
@@ -33,7 +37,6 @@ public class PhotoBrowser : MonoBehaviour
     private void LoadPhotosFromResources()
     {
         Debug.Log("Loading photos from Resources/" + photoFolderPath);
-        // Load all texture files from Resources/Photos/XRay or CTScan folder
         photoTextures = Resources.LoadAll<Texture2D>(photoFolderPath);
 
         if (photoTextures.Length == 0)
@@ -111,9 +114,20 @@ public class PhotoBrowser : MonoBehaviour
         {
             Debug.LogError("BackButton is not assigned.");
         }
+
+        if (chooseFromXrayButton != null)
+        {
+            chooseFromXrayButton.onClick.AddListener(ShowInImageViewer);
+            Debug.Log("Choose from XRay button OnClick listener assigned.");
+        }
+
+        if (backFromImageViewerButton != null)
+        {
+            backFromImageViewerButton.onClick.AddListener(CloseImageViewer);
+            Debug.Log("Back from Image Viewer button OnClick listener assigned.");
+        }
     }
 
-    // Method to open the selection panel via UIManager
     public void OpenSelectionPanel()
     {
         Debug.Log("Opening selection panel.");
@@ -128,7 +142,6 @@ public class PhotoBrowser : MonoBehaviour
         }
     }
 
-    // Method to close the selection panel via UIManager
     public void CloseSelectionPanel()
     {
         Debug.Log("Closing selection panel.");
@@ -143,7 +156,6 @@ public class PhotoBrowser : MonoBehaviour
         }
     }
 
-    // Method to handle photo selection
     public void OnPhotoSelected()
     {
         if (photoDropdown == null)
@@ -163,8 +175,34 @@ public class PhotoBrowser : MonoBehaviour
         Debug.Log("Photo selected from dropdown: " + selectedTexture.name);
         DisplaySelectedPhoto(selectedTexture);
 
-        // Close the selection panel after selection
         CloseSelectionPanel();
+    }
+
+    private void ShowInImageViewer()
+    {
+        if (displayImage.texture == null)
+        {
+            Debug.LogWarning("No image selected to show in viewer.");
+            return;
+        }
+
+        if (imageViewerDisplayImage != null)
+        {
+            imageViewerDisplayImage.texture = displayImage.texture;
+            float aspectRatio = (float)displayImage.texture.width / displayImage.texture.height;
+            imageViewerDisplayImage.GetComponent<RectTransform>().sizeDelta =
+                new Vector2(imageViewerDisplayImage.rectTransform.sizeDelta.x,
+                           imageViewerDisplayImage.rectTransform.sizeDelta.x / aspectRatio);
+        }
+
+        chooseXrayPanel.SetActive(false);
+        imageViewerPanel.SetActive(true);
+    }
+
+    private void CloseImageViewer()
+    {
+        imageViewerPanel.SetActive(false);
+        chooseXrayPanel.SetActive(true);
     }
 
     private void DisplaySelectedPhoto(Texture2D selectedTexture)
@@ -173,7 +211,6 @@ public class PhotoBrowser : MonoBehaviour
         {
             displayImage.texture = selectedTexture;
 
-            // Maintain aspect ratio
             float aspectRatio = (float)selectedTexture.width / selectedTexture.height;
             displayImage.GetComponent<RectTransform>().sizeDelta =
                 new Vector2(displayImage.rectTransform.sizeDelta.x,
