@@ -1,82 +1,41 @@
-using System;
-using System.Collections;
 using System.IO;
+using Meta.Voice.Logging;
 using UnityEngine;
-using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.UI;
-using TMPro;
-using UnityEngine.XR.Interaction.Toolkit.Interactors;
-using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
-public class Logger : MonoBehaviour
+public class UniversalButtonLogger : MonoBehaviour
 {
-    public string logFileName = "eventLogs.csv";
+    public string logFileName = "buttonInteractLogs.csv";
     private string logFilePath;
     private int logSize = 0;
-
-    [SerializeField]
-    private XRRayInteractor leftRayInteractor;
-    [SerializeField]
-    private XRRayInteractor rightRayInteractor;
 
     private void Start()
     {
         logFilePath = Path.Combine(Application.persistentDataPath, logFileName);
-        WriteLog(",Time(ms),Event,ButtonName,Controller");
+        string dateTimeNow = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        File.AppendAllText(logFilePath, $"Log {dateTimeNow}\n");
+        File.AppendAllText(logFilePath, "Index,Time(ms),Event,ButtonName\n");
         SetupButtonListeners();
     }
 
     private void SetupButtonListeners()
     {
-        Transform buttonsParent = GameObject.Find("buttons")?.transform;
-        if (buttonsParent != null)
+        Button[] allButtons = FindObjectsOfType<Button>(true);
+        Debug.Log($"Found {allButtons.Length} buttons in the scene.");
+
+        foreach (Button button in allButtons)
         {
-            foreach (Transform buttonTransform in buttonsParent)
-            {
-                var button = buttonTransform.GetComponentInChildren<Button>();
-                if (button != null)
-                {
-                    var interactable = button.GetComponent<XRSimpleInteractable>();
-                    if (interactable == null)
-                    {
-                        interactable = button.gameObject.AddComponent<XRSimpleInteractable>();
-                    }
+            string buttonName = button.gameObject.name;
 
-                    interactable.hoverEntered.AddListener((HoverEnterEventArgs args) =>
-                    {
-                        LogButtonEvent(button.name, "HoverEnter", args.interactorObject);
-                    });
-
-                    interactable.hoverExited.AddListener((HoverExitEventArgs args) =>
-                    {
-                        LogButtonEvent(button.name, "HoverExit", args.interactorObject);
-                    });
-
-                    interactable.selectEntered.AddListener((SelectEnterEventArgs args) =>
-                    {
-                        LogButtonEvent(button.name, "Click", args.interactorObject);
-                    });
-                }
-            }
-        }
-        else
-        {
-            Debug.LogWarning("Buttons parent object not found!");
+            button.onClick.AddListener(() => LogButtonClick(buttonName));
+            Debug.Log($"Added click listener for button: {buttonName}");
         }
     }
 
-    private void LogButtonEvent(string buttonName, string eventType, IXRInteractor interactor)
+    private void LogButtonClick(string buttonName)
     {
-        string controllerType = "Unknown";
-        if (interactor is XRRayInteractor rayInteractor)
-        {
-            if (rayInteractor == leftRayInteractor)
-                controllerType = "LeftController";
-            else if (rayInteractor == rightRayInteractor)
-                controllerType = "RightController";
-        }
-
-        WriteLog($",{Time.time * 1000},{eventType},{buttonName},{controllerType}");
+        WriteLog($",{Time.time * 1000},Click,{buttonName}");
+        Debug.Log($"Button clicked: {buttonName}");
     }
 
     private void WriteLog(string logEntry)
