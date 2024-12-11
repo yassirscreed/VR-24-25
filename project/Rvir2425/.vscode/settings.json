@@ -56,5 +56,6 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "Rvir2425.sln"
+    "dotnet.defaultSolution": "Rvir2425.sln",
+    "dotnet.preferCSharpExtension": true
 }
