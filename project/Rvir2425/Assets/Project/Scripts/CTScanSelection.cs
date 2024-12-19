@@ -23,6 +23,9 @@ public class CTScanSelection : MonoBehaviour
     
     [SerializeField] private Slider imageSlider; // Back button in image viewer
 
+    //TIMER
+    [SerializeField] private Button stopTimeCTButton;
+
     [Header("Photo Settings")]
 
     private Texture2D[] photoTextures;
@@ -33,9 +36,14 @@ public class CTScanSelection : MonoBehaviour
 
     [SerializeField] private ToggleController toggleController;  // Add this line
 
+
+    //TIMER
+    public int photoIndex;
+    private TimeTracker timeTracker;
     private void Start()
     {
         Debug.Log("PhotoBrowser Start method called.");
+        timeTracker = FindFirstObjectByType<TimeTracker>(); //TIMER
         AssignButtonListeners();
         SetupImagePanelAsButton(displayImage1, 1);
         SetupImagePanelAsButton(displayImage2, 2);
@@ -75,6 +83,12 @@ public class CTScanSelection : MonoBehaviour
         if (backFromImageViewerButton != null)
         {
             backFromImageViewerButton.onClick.AddListener(CloseImageViewer);
+            Debug.Log("Back from Image Viewer button OnClick listener assigned.");
+        }
+
+        if (stopTimeCTButton != null) //TIMER
+        {
+            stopTimeCTButton.onClick.AddListener(StopTrackingTime);
             Debug.Log("Back from Image Viewer button OnClick listener assigned.");
         }
     }
@@ -135,6 +149,7 @@ private void ShowInImageViewer(int photo)
 
         CTScanSelectionPanel.SetActive(false);
         imageViewerPanel.SetActive(true);
+        timeTracker.StartTracking(photo, "CT");  //TIMER
     }
 }
 
@@ -163,6 +178,12 @@ private void UpdateDisplayedImage(Texture2D[] sortedTextures, int index)
             imageSlider.maxValue = maxValue;
             imageSlider.wholeNumbers = true;
         }
+    }
+
+    public void StopTrackingTime()     //TIMER
+    {
+        timeTracker.StopTracking();
+        CloseImageViewer();
     }
 
     private void CloseImageViewer()

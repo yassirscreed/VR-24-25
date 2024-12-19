@@ -20,17 +20,27 @@ public class XRaySelection : MonoBehaviour
     [SerializeField] private RawImage imageViewerDisplayImage;  
     [SerializeField] private Button backFromImageViewerButton; // Back button in image viewer
 
+    //TIMER
+     [SerializeField] private Button stopTimeXRButton;
+
+
+
     [Header("Photo Settings")]
     private Texture2D[] photoTextures;
     private Vector3 initialInteractablePosition;
     private Quaternion initialInteractableRotation;
     private Vector3 initialInteractableScale;
+    
+    //TIMER
+    public int photoIndex;
+    private TimeTracker timeTracker;
 
     [SerializeField] private ToggleController toggleController;
 
     private void Start()
     {
         Debug.Log("PhotoBrowser Start method called.");
+        timeTracker = FindFirstObjectByType<TimeTracker>(); //TIMER
         AssignButtonListeners();
         SetupImagePanelAsButton(displayImage1, 1);
         SetupImagePanelAsButton(displayImage2, 2);
@@ -68,6 +78,12 @@ public class XRaySelection : MonoBehaviour
         if (backFromImageViewerButton != null)
         {
             backFromImageViewerButton.onClick.AddListener(CloseImageViewer);
+            Debug.Log("Back from Image Viewer button OnClick listener assigned.");
+        }
+
+        if (stopTimeXRButton != null) //TIMER
+        {
+            stopTimeXRButton.onClick.AddListener(StopTrackingTime);
             Debug.Log("Back from Image Viewer button OnClick listener assigned.");
         }
     }
@@ -119,6 +135,13 @@ public class XRaySelection : MonoBehaviour
 
         XRaySelectionPanel.SetActive(false);
         imageViewerPanel.SetActive(true);
+        timeTracker.StartTracking(photo, "XR");  //TIMER
+    }
+
+    public void StopTrackingTime()     //TIMER
+    {
+        timeTracker.StopTracking();
+        CloseImageViewer();
     }
 
     private void CloseImageViewer()
