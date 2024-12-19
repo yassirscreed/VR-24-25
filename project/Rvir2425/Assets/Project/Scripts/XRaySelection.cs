@@ -26,6 +26,8 @@ public class XRaySelection : MonoBehaviour
     private Quaternion initialInteractableRotation;
     private Vector3 initialInteractableScale;
 
+    [SerializeField] private ToggleController toggleController;
+
     private void Start()
     {
         Debug.Log("PhotoBrowser Start method called.");
@@ -108,6 +110,11 @@ public class XRaySelection : MonoBehaviour
             imageViewerDisplayImage.GetComponent<RectTransform>().sizeDelta =
                 new Vector2(imageViewerDisplayImage.rectTransform.sizeDelta.x,
                            imageViewerDisplayImage.rectTransform.sizeDelta.x / aspectRatio);
+
+            if (toggleController != null)
+            {
+                toggleController.OnImageSelected();
+            }
         }
 
         XRaySelectionPanel.SetActive(false);

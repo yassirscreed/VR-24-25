@@ -31,6 +31,7 @@ public class CTScanSelection : MonoBehaviour
     private Quaternion initialInteractableRotation;
     private Vector3 initialInteractableScale;
 
+    [SerializeField] private ToggleController toggleController;  // Add this line
 
     private void Start()
     {
@@ -125,10 +126,16 @@ private void ShowInImageViewer(int photo)
         // Add listener to update the displayed image based on the slider value
         imageSlider.onValueChanged.RemoveAllListeners();
         imageSlider.onValueChanged.AddListener((value) => UpdateDisplayedImage(sortedTextures, (int)value));
-    }
 
-    CTScanSelectionPanel.SetActive(false);
-    imageViewerPanel.SetActive(true);
+        // Add this line before showing the image viewer panel
+        if (toggleController != null)
+        {
+            toggleController.OnImageSelected();
+        }
+
+        CTScanSelectionPanel.SetActive(false);
+        imageViewerPanel.SetActive(true);
+    }
 }
 
 private void UpdateDisplayedImage(Texture2D[] sortedTextures, int index)

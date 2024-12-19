@@ -1,68 +1,87 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.XR.Interaction.Toolkit;
 
 public class ToggleController : MonoBehaviour
 {
+    [SerializeField] private Toggle handToggle;
     [SerializeField] private Toggle controllerToggle;
-    [SerializeField] private Toggle handsToggle;
-
-    [Header("Controller Objects")]
-    [SerializeField] private GameObject leftController;
-    [SerializeField] private GameObject rightController;
-    [SerializeField] private GameObject leftControllerTeleport;
-    [SerializeField] private GameObject rightControllerTeleport;
-
-    [Header("Hand Objects")]
-    [SerializeField] private GameObject leftHand;
-    [SerializeField] private GameObject rightHand;
-    [SerializeField] private GameObject handVisualizer;
-    [SerializeField] private GameObject handMenu;
+    
+    [Header("XR Components")]
+    [SerializeField] private GameObject handInteractors;     // Child objects containing hand interactions
+    [SerializeField] private GameObject controllerInteractors; // Child objects containing controller interactions
+    [SerializeField] private GameObject xrOrigin;              // Reference to the XR Origin
 
     private void Start()
     {
+        handToggle.onValueChanged.AddListener(OnHandToggleChanged);
         controllerToggle.onValueChanged.AddListener(OnControllerToggleChanged);
-        handsToggle.onValueChanged.AddListener(OnHandsToggleChanged);
 
-        // Initialize based on starting toggle state
-        UpdateObjectsState(controllerToggle.isOn);
+        // Set controller toggle as default
+        handToggle.isOn = false;
+        controllerToggle.isOn = true;
+
+        // Initially set hand interactors to inactive regardless of toggle state
+        if (handInteractors != null)
+        {
+            handInteractors.SetActive(false);
+        }
+        if (controllerInteractors != null)
+        {
+            controllerInteractors.SetActive(true);
+        }
+    }
+
+    private void UpdateRigs()
+    {
+        // Instead of activating/deactivating entire rigs,
+        // we only toggle the interactors
+        handInteractors.SetActive(handToggle.isOn);
+        controllerInteractors.SetActive(controllerToggle.isOn);
+
+        // Ensure XR Origin and camera remain active
+        if (xrOrigin != null)
+        {
+            xrOrigin.gameObject.SetActive(true);
+            if (xrOrigin.GetComponent<Camera>() != null)
+            {  
+                xrOrigin.GetComponent<Camera>().gameObject.SetActive(true);
+            }
+        }
+    }
+
+    private void OnHandToggleChanged(bool isOn)
+    {
+        if (isOn)
+        {
+            controllerToggle.isOn = false;
+        }
+        else if (!controllerToggle.isOn)
+        {
+            // If trying to turn off hands and controller is also off,
+            // force hands to stay on
+            handToggle.isOn = true;
+        }
     }
 
     private void OnControllerToggleChanged(bool isOn)
     {
         if (isOn)
         {
-            handsToggle.isOn = false;
-            UpdateObjectsState(true);
+            handToggle.isOn = false;
         }
-    }
-
-    private void OnHandsToggleChanged(bool isOn)
-    {
-        if (isOn)
+        else if (!handToggle.isOn)
         {
-            controllerToggle.isOn = false;
-            UpdateObjectsState(false);
+            // If trying to turn off controller and hands is also off,
+            // force controller to stay on
+            controllerToggle.isOn = true;
         }
     }
 
-    private void UpdateObjectsState(bool useControllers)
+    // Call this method when an image is selected
+    public void OnImageSelected()
     {
-        // Controller objects
-        leftController.SetActive(useControllers);
-        rightController.SetActive(useControllers);
-        leftControllerTeleport.SetActive(useControllers);
-        rightControllerTeleport.SetActive(useControllers);
-
-        // Hand objects
-        leftHand.SetActive(!useControllers);
-        rightHand.SetActive(!useControllers);
-        handVisualizer.SetActive(!useControllers);
-        handMenu.SetActive(!useControllers);
+        // Now we only update the rigs based on toggle state when an image is selected
+        UpdateRigs();
     }
-
-    private void OnDestroy()
-    {
-        if (controllerToggle != null) controllerToggle.onValueChanged.RemoveListener(OnControllerToggleChanged);
-        if (handsToggle != null) handsToggle.onValueChanged.RemoveListener(OnHandsToggleChanged);
-    }
-} 
+}
