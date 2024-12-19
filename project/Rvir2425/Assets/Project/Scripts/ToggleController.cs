@@ -9,13 +9,14 @@ public class ToggleController : MonoBehaviour
     [Header("Controller Objects")]
     [SerializeField] private GameObject leftController;
     [SerializeField] private GameObject rightController;
-    [SerializeField] private GameObject leftControllerRay;
-    [SerializeField] private GameObject rightControllerRay;
+    [SerializeField] private GameObject leftControllerTeleport;
+    [SerializeField] private GameObject rightControllerTeleport;
 
     [Header("Hand Objects")]
     [SerializeField] private GameObject leftHand;
     [SerializeField] private GameObject rightHand;
-    [SerializeField] private GameObject handRayInteractor;
+    [SerializeField] private GameObject handVisualizer;
+    [SerializeField] private GameObject handMenu;
 
     private void Start()
     {
@@ -49,13 +50,14 @@ public class ToggleController : MonoBehaviour
         // Controller objects
         leftController.SetActive(useControllers);
         rightController.SetActive(useControllers);
-        leftControllerRay.SetActive(useControllers);
-        rightControllerRay.SetActive(useControllers);
+        leftControllerTeleport.SetActive(useControllers);
+        rightControllerTeleport.SetActive(useControllers);
 
         // Hand objects
         leftHand.SetActive(!useControllers);
         rightHand.SetActive(!useControllers);
-        handRayInteractor.SetActive(!useControllers);
+        handVisualizer.SetActive(!useControllers);
+        handMenu.SetActive(!useControllers);
     }
 
     private void OnDestroy()
