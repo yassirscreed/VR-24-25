@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System.Linq;
 
 public class CTScanSelection : MonoBehaviour
 {
@@ -18,10 +19,11 @@ public class CTScanSelection : MonoBehaviour
 
     [SerializeField] private GameObject imageInteractable;
     [SerializeField] private RawImage imageViewerDisplayImage;  
-    [SerializeField] private Button backFromImageViewerButton; // Back button in image viewer
+    [SerializeField] private Button backFromImageViewerButton;
+    
+    [SerializeField] private Slider imageSlider; // Back button in image viewer
 
     [Header("Photo Settings")]
- // Folder name inside Resources folder (CTScan / XRay)
 
     private Texture2D[] photoTextures;
 
@@ -91,37 +93,69 @@ public class CTScanSelection : MonoBehaviour
     }
 
 
-    private void ShowInImageViewer(int photo)
+private void ShowInImageViewer(int photo)
+{
+    Debug.LogError("Viewing image in image viewer." + photo);
+    if (imageViewerDisplayImage != null)
     {
-        Debug.LogError("Viewing image in image viewer." + photo);
-        if (imageViewerDisplayImage != null)
-        {
-            RawImage displayImage = null;
-            switch (photo)
-            {
-                case 1:
-                    displayImage = displayImage1;
-                    break;
-                case 2:
-                    displayImage = displayImage2;
-                    break;
-                case 3:
-                    displayImage = displayImage3;
-                    break;
-                default:
-                    Debug.LogError("Invalid photo index");
-                    return;
-            }
+        string folderPath = "Photos/CTScan/CT" + photo;
+        Texture2D[] textures = Resources.LoadAll<Texture2D>(folderPath);
 
-            imageViewerDisplayImage.texture = displayImage.texture;
-            float aspectRatio = (float)displayImage.texture.width / displayImage.texture.height;
-            imageViewerDisplayImage.GetComponent<RectTransform>().sizeDelta =
-                new Vector2(imageViewerDisplayImage.rectTransform.sizeDelta.x,
-                           imageViewerDisplayImage.rectTransform.sizeDelta.x / aspectRatio);
+        if (textures.Length == 0)
+        {
+            Debug.LogError("No images found in folder: " + folderPath);
+            return;
         }
 
-        CTScanSelectionPanel.SetActive(false);
-        imageViewerPanel.SetActive(true);
+        // Sort textures by name
+        var sortedTextures = textures.OrderBy(t => t.name).ToArray();
+
+        // Set the initial display image to the first image in the sorted list
+        Texture2D initialTexture = sortedTextures[0];
+        imageViewerDisplayImage.texture = initialTexture;
+
+        float aspectRatio = (float)initialTexture.width / initialTexture.height;
+        imageViewerDisplayImage.GetComponent<RectTransform>().sizeDelta =
+            new Vector2(imageViewerDisplayImage.rectTransform.sizeDelta.x,
+                    imageViewerDisplayImage.rectTransform.sizeDelta.x / aspectRatio);
+
+        // Set slider properties based on the number of images
+        SetSliderProperties(1, sortedTextures.Length);
+
+        // Add listener to update the displayed image based on the slider value
+        imageSlider.onValueChanged.RemoveAllListeners();
+        imageSlider.onValueChanged.AddListener((value) => UpdateDisplayedImage(sortedTextures, (int)value));
+    }
+
+    CTScanSelectionPanel.SetActive(false);
+    imageViewerPanel.SetActive(true);
+}
+
+private void UpdateDisplayedImage(Texture2D[] sortedTextures, int index)
+{
+    if (index < 1 || index > sortedTextures.Length)
+    {
+        Debug.LogError("Invalid slider index");
+        return;
+    }
+
+    Texture2D selectedTexture = sortedTextures[index - 1];
+    imageViewerDisplayImage.texture = selectedTexture;
+
+    float aspectRatio = (float)selectedTexture.width / selectedTexture.height;
+    imageViewerDisplayImage.GetComponent<RectTransform>().sizeDelta =
+        new Vector2(imageViewerDisplayImage.rectTransform.sizeDelta.x,
+                   imageViewerDisplayImage.rectTransform.sizeDelta.x / aspectRatio);
+}
+
+    private void SetSliderProperties(int minValue, int maxValue)
+    {
+        if (imageSlider != null)
+        {
+            imageSlider.minValue = minValue;
+            imageSlider.maxValue = maxValue;
+            imageSlider.wholeNumbers = true;
+        }
     }
 
     private void CloseImageViewer()
