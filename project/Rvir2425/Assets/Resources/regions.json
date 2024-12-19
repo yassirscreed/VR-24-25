@@ -1,0 +1,65 @@
+{
+    "images": [
+      {
+        "image_name": "XR1.png",
+        "altered_region": {
+          "center": {
+            "x": 286,
+            "y": 653
+          },
+          "radius": 20
+        }
+      },
+      {
+        "image_name": "XR2.png",
+        "altered_region": {
+          "center": {
+            "x": 732,
+            "y": 304
+          },
+          "radius": 20
+        }
+      },
+      {
+        "image_name": "XR3.png",
+        "altered_region": {
+          "center": {
+            "x": 315,
+            "y": 401
+          },
+          "radius": 20
+        }
+      },
+      {
+        "image_name": "CT1.png",
+        "altered_region": {
+          "center": {
+            "x": 385,
+            "y": 376
+          },
+          "radius": 10
+        }
+      },
+      {
+        "image_name": "CT2.png",
+        "altered_region": {
+          "center": {
+            "x": 141,
+            "y": 325
+          },
+          "radius": 10
+        }
+      },
+      {
+        "image_name": "CT3.png",
+        "altered_region": {
+          "center": {
+            "x": 430,
+            "y": 261
+          },
+          "radius": 10
+        }
+      }
+    ]
+  }
+  
