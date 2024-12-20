@@ -2,9 +2,39 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Linq;
+using System;
 
 public class CTScanSelection : MonoBehaviour
 {
+
+    [System.Serializable]
+    public class RegionsData
+    {
+        public ImageData[] images;
+    }
+
+    [System.Serializable]
+    public class ImageData 
+    {
+        public string image_name;
+        public int id;  // Important for CT scans
+        public AlteredRegion altered_region;
+    }
+
+    [System.Serializable]
+    public class AlteredRegion
+    {
+        public Center center;
+        public float radius;
+    }
+
+    [System.Serializable]
+    public class Center
+    {
+        public float x;
+        public float y;
+    }
+
     [Header("UI References")]
 
     [SerializeField] private RawImage displayImage1;   
@@ -25,6 +55,8 @@ public class CTScanSelection : MonoBehaviour
 
     //TIMER
     [SerializeField] private Button stopTimeCTButton;
+
+    private RegionsData regionsData;
 
     [Header("Photo Settings")]
 
@@ -48,7 +80,10 @@ public class CTScanSelection : MonoBehaviour
         SetupImagePanelAsButton(displayImage1, 1);
         SetupImagePanelAsButton(displayImage2, 2);
         SetupImagePanelAsButton(displayImage3, 3);
-
+        TextAsset jsonFile = Resources.Load<TextAsset>("regions");
+        regionsData = JsonUtility.FromJson<RegionsData>(jsonFile.text);
+        stopTimeCTButton.gameObject.SetActive(true);
+    
         initialInteractablePosition = imageInteractable.transform.position;
         initialInteractableRotation = imageInteractable.transform.rotation;
         initialInteractableScale = imageInteractable.transform.localScale;
@@ -110,6 +145,7 @@ public class CTScanSelection : MonoBehaviour
 
 private void ShowInImageViewer(int photo)
 {
+    
     Debug.LogError("Viewing image in image viewer." + photo);
     if (imageViewerDisplayImage != null)
     {
@@ -120,6 +156,11 @@ private void ShowInImageViewer(int photo)
         {
             Debug.LogError("No images found in folder: " + folderPath);
             return;
+        }
+        Debug.Log($"Loaded textures ({textures.Length}):");
+        foreach (var tex in textures)
+        {
+            Debug.Log($"- {tex.name}");
         }
 
         // Sort textures by name
@@ -146,10 +187,11 @@ private void ShowInImageViewer(int photo)
         {
             toggleController.OnImageSelected();
         }
-
+        photoIndex = photo;
         CTScanSelectionPanel.SetActive(false);
         imageViewerPanel.SetActive(true);
         timeTracker.StartTracking(photo, "CT");  //TIMER
+        PositionStopButton(1);
     }
 }
 
@@ -168,6 +210,8 @@ private void UpdateDisplayedImage(Texture2D[] sortedTextures, int index)
     imageViewerDisplayImage.GetComponent<RectTransform>().sizeDelta =
         new Vector2(imageViewerDisplayImage.rectTransform.sizeDelta.x,
                    imageViewerDisplayImage.rectTransform.sizeDelta.x / aspectRatio);
+    PositionStopButton(index);
+    
 }
 
     private void SetSliderProperties(int minValue, int maxValue)
@@ -195,6 +239,35 @@ private void UpdateDisplayedImage(Texture2D[] sortedTextures, int index)
         imageInteractable.transform.rotation = initialInteractableRotation;
         imageInteractable.transform.localScale = initialInteractableScale;
 
+    }
+
+    private void PositionStopButton(int sliceId)
+    {
+        Debug.Log($"Positioning stop button for slice ID: {sliceId} on image CT{photoIndex}");
+        String temp = $"CT{photoIndex}.png";  // photoIndex should be 1,2,3 for CT1,CT2,CT3
+        ImageData imageData = System.Array.Find(regionsData.images, 
+            img => img.image_name == temp);
+        Debug.Log(imageData);
+        if (imageData != null && imageData.id == sliceId)  // Only position button if slice ID matches
+        {
+
+            RectTransform buttonTransform = stopTimeCTButton.GetComponent<RectTransform>();
+
+            buttonTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            buttonTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            buttonTransform.pivot = new Vector2(0.5f, 0.5f);
+
+            buttonTransform.anchoredPosition = new Vector2(
+                imageData.altered_region.center.x,
+                imageData.altered_region.center.y
+            );
+            stopTimeCTButton.gameObject.SetActive(true);
+            Debug.Log($"Button position set in CT{photoIndex}.png");
+        }
+        else
+        {
+            stopTimeCTButton.gameObject.SetActive(false);  // Hide button if not correct slice
+        }
     }
 
 

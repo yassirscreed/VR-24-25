@@ -32,30 +32,33 @@
       },
       {
         "image_name": "CT1.png",
+        "id": 93,
         "altered_region": {
           "center": {
-            "x": 385,
-            "y": 376
+            "x": 195,
+            "y": -174
           },
           "radius": 10
         }
       },
       {
         "image_name": "CT2.png",
+        "id": 49,
         "altered_region": {
           "center": {
-            "x": 141,
-            "y": 325
+            "x": -175,
+            "y": -99
           },
           "radius": 10
         }
       },
       {
         "image_name": "CT3.png",
+        "id": 51,
         "altered_region": {
           "center": {
-            "x": 430,
-            "y": 261
+            "x": 263,
+            "y": 0
           },
           "radius": 10
         }

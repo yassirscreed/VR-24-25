@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System;
 using System.IO;
+using System.Collections.Generic;
 
 [System.Serializable]
 public class RegionsData
@@ -69,6 +70,7 @@ public class XRaySelection : MonoBehaviour
 
     [SerializeField] private ToggleController toggleController;
 
+
     private void Start()
     {
 
@@ -84,6 +86,7 @@ public class XRaySelection : MonoBehaviour
         string path = Path.Combine(Application.dataPath, "Resources/regions.json");
         TextAsset jsonFile = Resources.Load<TextAsset>("regions");
         regionsData = JsonUtility.FromJson<RegionsData>(jsonFile.text);
+
     }
 
      private void SetupImagePanelAsButton(RawImage image, int photoIndex)
@@ -92,7 +95,10 @@ public class XRaySelection : MonoBehaviour
 
         EventTrigger.Entry entry = new EventTrigger.Entry();
         entry.eventID = EventTriggerType.PointerClick;
-        entry.callback.AddListener((eventData) => { ShowInImageViewer(photoIndex); });
+        entry.callback.AddListener((eventData) => { 
+            // Increment attempts before showing image
+            ShowInImageViewer(photoIndex); 
+        });
 
         trigger.triggers.Add(entry);
     }
@@ -218,6 +224,5 @@ public class XRaySelection : MonoBehaviour
         imageInteractable.transform.rotation = initialInteractableRotation;
         imageInteractable.transform.localScale = initialInteractableScale;
     }
-
 
 }
