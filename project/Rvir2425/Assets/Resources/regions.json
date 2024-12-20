@@ -4,8 +4,8 @@
         "image_name": "XR1.png",
         "altered_region": {
           "center": {
-            "x": 286,
-            "y": 653
+            "x": -173,
+            "y": -102
           },
           "radius": 20
         }
@@ -14,8 +14,8 @@
         "image_name": "XR2.png",
         "altered_region": {
           "center": {
-            "x": 732,
-            "y": 304
+            "x": 163,
+            "y": 168
           },
           "radius": 20
         }
@@ -24,8 +24,8 @@
         "image_name": "XR3.png",
         "altered_region": {
           "center": {
-            "x": 315,
-            "y": 401
+            "x": -151,
+            "y": 90
           },
           "radius": 20
         }
