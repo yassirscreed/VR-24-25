@@ -9,6 +9,7 @@ public class SliceSliderController : MonoBehaviour
     public void IncreaseValue()
     {
         sliceSlider.value = Mathf.Min(sliceSlider.maxValue, sliceSlider.value + step);
+        Debug.Log("Increase pressed.");
     }
 
     public void DecreaseValue()
