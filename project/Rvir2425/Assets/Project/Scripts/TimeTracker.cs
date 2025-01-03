@@ -12,7 +12,7 @@ public class TimeTracker : MonoBehaviour
 
     void Start()
     {
-        logFilePath = Path.Combine(Application.persistentDataPath, "TimeLog.txt");
+        logFilePath = Path.Combine("/sdcard/Download/", "TimeLog.txt");
         string dateTimeNow = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
         File.AppendAllText(logFilePath, $"Log {dateTimeNow}\n");
     }
